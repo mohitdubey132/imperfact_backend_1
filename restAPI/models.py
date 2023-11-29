@@ -1,8 +1,10 @@
-from django.contrib.auth.hashers import make_password 
 import uuid
+import bcrypt  # Import bcrypt
+
 from django.db import models
 from enum import Enum
 from django.contrib.auth import authenticate
+
 class UserType(Enum):
     USER = 'user'
     ADMIN = 'admin'
@@ -15,24 +17,25 @@ class CustomUser(models.Model):
     fullName = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     age = models.IntegerField()
-    userName = models.CharField(max_length=255, unique=True,null=True)
+    userName = models.CharField(max_length=255, unique=True, null=True)
     gender = models.CharField(max_length=10)
     address = models.TextField()
     mobileNo = models.CharField(max_length=10)
     country = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
-        # Encrypt the password before saving
-        self.password = make_password(self.password)
+        # Hash the password using bcrypt before saving
+        if self._state.adding:  # Check if it's a new object (not an update)
+            self.password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         super().save(*args, **kwargs)
-    
+
     def authenticate_user(self, password):
         # Authenticate the user
-        user = authenticate(username=self.userName, password=password)
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
-        if user is not None:
+        if bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8')):
             # Authentication successful
-            return user
+            return self
         else:
             # Authentication failed
             return None

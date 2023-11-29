@@ -8,6 +8,6 @@ urlpatterns = [
 	path('signup/', views.user_create, name="user-create"),
     path('login/', views.custom_user_login, name="user-login"),
 
-	# path('task-update/<str:pk>/', views.taskUpdate, name="task-update"),
+	path('task-update/', views.taskUpdate, name="task-update"),
 	path('task-delete/', views.delete_all_custom_users, name="task-delete"),
 ]

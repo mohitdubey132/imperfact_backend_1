@@ -10,7 +10,8 @@ from .serializers import CustomUserSerializer
 from rest_framework.permissions import IsAuthenticated ,AllowAny
 from .models import CustomUser
 from django.contrib.auth import authenticate
-
+import bcrypt
+from .token_utils import get_user_id_from_token
 # Create your views here.
 
 @api_view(['GET'])
@@ -49,20 +50,27 @@ def custom_user_login(request):
 
     # Retrieve the user by username
     user = CustomUser.objects.filter(userName=username).first()
-    # user1 = CustomUserSerializer(user)
-    print(user.password )
-    print(password)
-    if user and check_password(user.password,password):
+
+    if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         # Password is correct
         # Serialize the user data
         serializer = CustomUserSerializer(user)
+        refresh = RefreshToken.for_user(user)
+        data = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+        print(serializer.data,"gjhgkj",data)
 
         return Response({
+            'Token':data,
             'user': serializer.data,
+            'api_status':True
         })
     else:
         # Invalid username or password
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 @api_view(['POST'])
 def user_create(request):
@@ -79,35 +87,53 @@ def user_create(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['PATCH'])
+# @permission_classes([IsAuthenticated])
+def taskUpdate(request):
+        # user_id = request.user.id
+        # task= CustomUser.objects.get(U_id=user_id)
+        # serializer = CustomUserSerializer(instance=task, data=request.data)
+        
+        # return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        user_id = get_user_id_from_token(request)
+        
+        if user_id is not None:
+                try:
+                    task = CustomUser.objects.get(U_id=user_id)
+                except CustomUser.DoesNotExist:
+                      return Response({"error": "Task not found for the current user"}, status=404)
+                serializer = CustomUserSerializer(instance=task, data=request.data)
+
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+                else:
+                    return Response(serializer.errors, status=400)
+
+        else:
+            return  Response(status=401) 
+
+	    # if serializer.is_valid():
+		#     serializer.save()
+
+
 # @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
-# def taskUpdate(request):
+# def task_update(request):
 #     user_id = request.user.id
-# 	task= CustomUser.objects.get(U_id=user_id)
-# 	serializer = CustomUserSerializer(instance=task, data=request.data)
 
-# 	if serializer.is_valid():
-# 		serializer.save()
+    # try:
+    #     task = CustomUser.objects.get(U_id=user_id)
+    # except CustomUser.DoesNotExist:
+    #     return Response({"error": "Task not found for the current user"}, status=404)
 
-# 	return Response(serializer.data)
+    # serializer = CustomUserSerializer(instance=task, data=request.data)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def task_update(request):
-    user_id = request.user.id
-
-    try:
-        task = CustomUser.objects.get(U_id=user_id)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "Task not found for the current user"}, status=404)
-
-    serializer = CustomUserSerializer(instance=task, data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    else:
-        return Response(serializer.errors, status=400)
+    # if serializer.is_valid():
+    #     serializer.save()
+    #     return Response(serializer.data)
+    # else:
+    #     return Response(serializer.errors, status=400)
 @api_view(['DELETE'])
 def delete_all_custom_users(request):
     try:
