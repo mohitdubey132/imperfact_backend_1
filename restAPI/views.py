@@ -51,7 +51,7 @@ def custom_user_login(request):
     # Retrieve the user by username
     user = CustomUser.objects.filter(userName=username).first()
 
-    if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+    if user and (password == user.password):
         # Password is correct
         # Serialize the user data
         serializer = CustomUserSerializer(user)

@@ -23,22 +23,22 @@ class CustomUser(models.Model):
     mobileNo = models.CharField(max_length=10)
     country = models.CharField(max_length=255)
 
-    def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
         # Hash the password using bcrypt before saving
-        if self._state.adding:  # Check if it's a new object (not an update)
-            self.password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        super().save(*args, **kwargs)
+        # if self._state.adding:  # Check if it's a new object (not an update)
+        #     self.password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # super().save(*args, **kwargs)
 
-    def authenticate_user(self, password):
+    # def authenticate_user(self, password):
         # Authenticate the user
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), self.password.encode('utf-8'))
+        # hashed_password = bcrypt.hashpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
-        if bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8')):
+        # if bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8')):
             # Authentication successful
-            return self
-        else:
+            # return self
+        # else:
             # Authentication failed
-            return None
+            # return None
 
     def __str__(self):
         return self.fullName
