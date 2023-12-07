@@ -23,22 +23,34 @@ class CustomUser(models.Model):
     mobileNo = models.CharField(max_length=10)
     country = models.CharField(max_length=255)
 
-    # def save(self, *args, **kwargs):
-        # Hash the password using bcrypt before saving
-        # if self._state.adding:  # Check if it's a new object (not an update)
-        #     self.password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        # super().save(*args, **kwargs)
-
-    # def authenticate_user(self, password):
-        # Authenticate the user
-        # hashed_password = bcrypt.hashpw(password.encode('utf-8'), self.password.encode('utf-8'))
-
-        # if bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8')):
-            # Authentication successful
-            # return self
-        # else:
-            # Authentication failed
-            # return None
-
     def __str__(self):
         return self.fullName
+
+class Question(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    # question_text = models.CharField(max_length=200)
+    # pub_date = models.DateTimeField('date published')
+    pub_date = models.DateTimeField('date published', auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)  # Automatically updated on each save
+    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ForeignKey to link with the User model
+    like_count = models.PositiveIntegerField(default=0)
+    dislike_count = models.PositiveIntegerField(default=0)
+    Q_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    def __str__(self):
+        return self.title
+
+class Answers(models.Model):
+    Answer = models.CharField(max_length=255)
+    # description = models.TextField()
+    # question_text = models.CharField(max_length=200)
+    # pub_date = models.DateTimeField('date published')
+    pub_date = models.DateTimeField('date published', auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)  # Automatically updated on each save
+    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ForeignKey to link with the User model
+    Q_id = models.ForeignKey(Question, on_delete=models.CASCADE) 
+    like_count = models.PositiveIntegerField(default=0)
+    dislike_count = models.PositiveIntegerField(default=0)
+    A_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    def __str__(self):
+        return self.Answer

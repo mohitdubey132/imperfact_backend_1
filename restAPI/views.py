@@ -6,9 +6,9 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.response import Response
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer ,QuestionSerializer , AnswersSerializer
 from rest_framework.permissions import IsAuthenticated ,AllowAny
-from .models import CustomUser
+from .models import CustomUser , Question , Answers
 from django.contrib.auth import authenticate
 import bcrypt
 from .token_utils import get_user_id_from_token
@@ -32,11 +32,7 @@ def getUsers(request):
 	serializer = CustomUserSerializer(users, many=True)
 	return Response(serializer.data)
 
-# @api_view(['GET'])
-# def taskDetail(request, pk):
-# 	tasks = Task.objects.get(id=pk)
-# 	serializer = TaskSerializer(tasks, many=False)
-# 	return Response(serializer.data)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -88,13 +84,7 @@ def user_create(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PATCH'])
-# @permission_classes([IsAuthenticated])
 def taskUpdate(request):
-        # user_id = request.user.id
-        # task= CustomUser.objects.get(U_id=user_id)
-        # serializer = CustomUserSerializer(instance=task, data=request.data)
-        
-        # return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
         user_id = get_user_id_from_token(request)
         
         if user_id is not None:
@@ -113,27 +103,8 @@ def taskUpdate(request):
         else:
             return  Response(status=401) 
 
-	    # if serializer.is_valid():
-		#     serializer.save()
+	 
 
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def task_update(request):
-#     user_id = request.user.id
-
-    # try:
-    #     task = CustomUser.objects.get(U_id=user_id)
-    # except CustomUser.DoesNotExist:
-    #     return Response({"error": "Task not found for the current user"}, status=404)
-
-    # serializer = CustomUserSerializer(instance=task, data=request.data)
-
-    # if serializer.is_valid():
-    #     serializer.save()
-    #     return Response(serializer.data)
-    # else:
-    #     return Response(serializer.errors, status=400)
 @api_view(['DELETE'])
 def delete_all_custom_users(request):
     try:
@@ -143,3 +114,79 @@ def delete_all_custom_users(request):
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
 
+# create question view 
+@api_view(['POST'])
+def create_question(request):
+    # Get user ID from token
+    user_id = get_user_id_from_token(request)
+
+    if user_id is not None:
+        # Retrieve user instance based on user ID
+        try:
+            user = CustomUser.objects.get(U_id=user_id)
+            # print(user,"jdnsdnsdk")
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create a new question with user association
+        request.data['user_id'] = user_id
+        serializer = QuestionSerializer(data=request.data)
+        if serializer.is_valid():
+            # serializer.validated_data['user'] = user  # Associate the question with the user
+            serializer.save(user_id=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({"error": "Authentication token not valid"}, status=status.HTTP_401_UNAUTHORIZED)
+
+# get all questions 
+@api_view(['GET'])
+def getQuestion(request):
+	question = Question.objects.all()
+	serializer = QuestionSerializer(question, many=True)
+    
+	return Response(serializer.data)
+
+# ----------------------------Answer a question ---------------------------------------#
+# create question view 
+@api_view(['POST'])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+def answer_question(request):
+    # Get user ID from token
+    user_id = get_user_id_from_token(request)
+
+    if user_id is not None:
+        # Retrieve user instance based on user ID
+        try:
+            user = CustomUser.objects.get(U_id=user_id)
+            # print(user,"jdnsdnsdk")
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create a new question with user association
+        request.data['user_id'] = user_id
+        serializer = AnswersSerializer(data=request.data)
+        if serializer.is_valid():
+            # serializer.validated_data['user'] = user  # Associate the question with the user
+            serializer.save(user_id=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({"error": "Authentication token not valid"}, status=status.HTTP_401_UNAUTHORIZED)
+
+# --------------------------get answers for Question-----------------------------------#
+@api_view(['POST'])
+def getAnswersForQuestion(request):
+    # Assuming Q_id is present in the request data
+    q_id = request.data.get('Q_id')
+
+    if q_id is not None:
+        # Use filter to get answers for a specific question
+        answers = Answers.objects.filter(Q_id=q_id)
+        serializer = AnswersSerializer(answers, many=True)
+        return Response(serializer.data)
+    else:
+        return Response({"error": "Q_id is required in the request data"}, status=status.HTTP_400_BAD_REQUEST)

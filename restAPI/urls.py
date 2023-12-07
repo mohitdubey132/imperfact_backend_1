@@ -10,4 +10,11 @@ urlpatterns = [
 
 	path('task-update/', views.taskUpdate, name="task-update"),
 	path('task-delete/', views.delete_all_custom_users, name="task-delete"),
+	path('create-question/',views.create_question,name="create-question"),
+	# ---------------------------question end points--------------------------------#
+	path('question-list/',views.getQuestion,name="question-list"),
+	path('answersForQuestion/',views.getAnswersForQuestion,name="answersForQuestion"),
+
+	#--------------------------- Answer end points----------------------------------#
+	path('write-answer/',views.answer_question,name="answer-a-question")
 ]
