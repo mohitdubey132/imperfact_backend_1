@@ -200,7 +200,7 @@ def getAnswersForQuestion(request):
     else:
         return Response({"error": "Q_id is required in the request data"}, status=status.HTTP_400_BAD_REQUEST)
 
-
+# --------------------------------delete question ----------------------------------------#
 @api_view(['POST'])
 def deteleQuestion(request):
     user_id = get_user_id_from_token(request)
@@ -228,6 +228,8 @@ def deteleQuestion(request):
     else:
         return Response({"error": "Authentication token not valid"}, status=status.HTTP_401_UNAUTHORIZED)
 
+
+#--------------------------------delete answer -----------------------------------------------------#
 @api_view(['POST'])
 def deteleAnswer(request):
     user_id = get_user_id_from_token(request)
@@ -254,3 +256,5 @@ def deteleAnswer(request):
 
     else:
         return Response({"error": "Authentication token not valid"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#-------------------------------- like  question -------------------------------------------#

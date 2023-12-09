@@ -35,6 +35,8 @@ class Question(models.Model):
     updated_date = models.DateTimeField(auto_now=True)  # Automatically updated on each save
     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ForeignKey to link with the User model
     like_count = models.PositiveIntegerField(default=0)
+    # liked_by = models.ManyToManyField(CustomUser, related_name='liked_questions')
+    # dis_liked_by = models.ManyToManyField(CustomUser, related_name='dis_liked_questions')
     dislike_count = models.PositiveIntegerField(default=0)
     Q_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     def __str__(self):
