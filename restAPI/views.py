@@ -171,6 +171,7 @@ def answer_question(request):
         if serializer.is_valid():
             # serializer.validated_data['user'] = user  # Associate the question with the user
             serializer.save(user_id=user)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -186,7 +187,14 @@ def getAnswersForQuestion(request):
     if q_id is not None:
         # Use filter to get answers for a specific question
         answers = Answers.objects.filter(Q_id=q_id)
+        count_of_question = answers.count()
         serializer = AnswersSerializer(answers, many=True)
-        return Response(serializer.data)
+        data = {
+            'count_of_anser' :  count_of_question,
+            'data': serializer.data ,
+            'message' : 'aswers for question',
+            'api_status' : 200
+        }
+        return Response(data)
     else:
         return Response({"error": "Q_id is required in the request data"}, status=status.HTTP_400_BAD_REQUEST)
