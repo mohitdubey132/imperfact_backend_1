@@ -14,7 +14,9 @@ urlpatterns = [
 	# ---------------------------question end points--------------------------------#
 	path('question-list/',views.getQuestion,name="question-list"),
 	path('answersForQuestion/',views.getAnswersForQuestion,name="answersForQuestion"),
-
+    path('question-delete/',views.deteleQuestion,name='question-delete'),
 	#--------------------------- Answer end points----------------------------------#
-	path('write-answer/',views.answer_question,name="answer-a-question")
+	path('write-answer/',views.answer_question,name="answer-a-question"),
+	# deteleAnswer
+    path('answer-delete/',views.deteleAnswer,name='detele-Answer'),
 ]

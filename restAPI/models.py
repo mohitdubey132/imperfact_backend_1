@@ -24,7 +24,7 @@ class CustomUser(models.Model):
     country = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.fullName
+        return f'{self.U_id}'
 
 class Question(models.Model):
     title = models.CharField(max_length=255)

@@ -7,10 +7,10 @@ def get_user_id_from_token(request):
     try:
         # Extract the token from the Authorization header
         token = authorization_header.split(' ')[0]
-        print(token)
+        # print(token)
         # Decode the token to get the payload
         decoded_token = AccessToken(token).payload
-        print(decoded_token)
+        # print(decoded_token)
         # Retrieve the user ID from the payload
         user_id = decoded_token.get('user_id')
         

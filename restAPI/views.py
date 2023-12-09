@@ -181,6 +181,7 @@ def answer_question(request):
 # --------------------------get answers for Question-----------------------------------#
 @api_view(['POST'])
 def getAnswersForQuestion(request):
+
     # Assuming Q_id is present in the request data
     q_id = request.data.get('Q_id')
 
@@ -198,3 +199,58 @@ def getAnswersForQuestion(request):
         return Response(data)
     else:
         return Response({"error": "Q_id is required in the request data"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def deteleQuestion(request):
+    user_id = get_user_id_from_token(request)
+    if user_id is not None:
+        # Retrieve user instance based on user ID
+        Q_id = request.data.get('Q_id')
+        try:
+            question = Question.objects.get(Q_id=Q_id)
+            Serializer = QuestionSerializer(question, many=False)
+            if str(user_id) != str(question.user_id):    # note  convert  <class 'restAPI.models.CustomUser'> = question.user_id  in to string 
+                return Response({"error": "You do not have permission to delete this question.",
+                "userids" :f"user->{type(user_id)} questio {type(question.user_id)}"
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            # Delete the question
+            question.delete()
+
+            return Response({"message": f"Question with id {Q_id} deleted successfully"
+            "userids"
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        except Question.DoesNotExist:
+            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    else:
+        return Response({"error": "Authentication token not valid"}, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def deteleAnswer(request):
+    user_id = get_user_id_from_token(request)
+    if user_id is not None:
+        # Retrieve user instance based on user ID
+        A_id = request.data.get('A_id')
+        try:
+            answer = Answers.objects.get(A_id=A_id)
+            # Serializer = QuestionSerializer(question, many=False)
+            if str(user_id) != str(answer.user_id):    # note  convert  <class 'restAPI.models.CustomUser'> = question.user_id  in to string 
+                return Response({"error": "You do not have permission to delete this question.",
+                "userids" :f"user->{type(user_id)} questio {type(answer.user_id)}"
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            # Delete the question
+            answer.delete()
+
+            return Response({"message": f"Answer with id {A_id} deleted successfully"
+            "userids"
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        except Answers.DoesNotExist:
+            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    else:
+        return Response({"error": "Authentication token not valid"}, status=status.HTTP_401_UNAUTHORIZED)
