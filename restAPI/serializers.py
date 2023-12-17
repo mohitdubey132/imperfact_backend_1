@@ -4,7 +4,7 @@ from .models import CustomUser ,Question , Answers
 class CustomUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = CustomUser
-		fields =['U_id', 'userType','userName','fullName', 'age', 'gender', 'address', 'mobileNo', 'country']
+		fields =['U_id', 'userType','userName','fullName','age','gender','address','mobileNo', 'country']
         
 #-----------------for use in other Serializer --------------------------------------------------# 
 class CustomUtilsUserSerializer(serializers.ModelSerializer):

@@ -46,19 +46,19 @@ def custom_user_login(request):
         return Response({'error': 'Both username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Retrieve the user by username
-    user = CustomUser.objects.filter(userName=username).first()
-
+    user = CustomUser.objects.filter(userName__iexact=username).first()
+    
     if user and (str(password) == str(user.password)):
         # Password is correct
         # Serialize the user data
+        
         serializer = CustomUserSerializer(user)
         refresh = RefreshToken.for_user(user)
         data = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }
-        print(serializer.data,"gjhgkj",data)
-
+      
         return Response({
             'Token':data,
             'user': serializer.data,
@@ -76,9 +76,11 @@ def user_create(request):
     if serializer.is_valid():
         user = serializer.save()  # Save the user instance
         refresh = RefreshToken.for_user(user)
+        data2= serializer.data
         data = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
+            'user':data2
         }
         return Response(data, status=status.HTTP_201_CREATED)
 
