@@ -13,40 +13,6 @@ from django.contrib.auth import authenticate
 import bcrypt
 from .token_utils import get_user_id_from_token
 # Create your views here.
-import psycopg2
-
-
-db_credentials = {
-    'dbname': 'postgres',
-    'user': 'postgres',
-    'password': 'PostgresMD',
-    'host': 'database-1.cutkqxamclk2.ap-south-1.rds.amazonaws.com',
-    'port': '5432',  # Default PostgreSQL port
-}
-def list_tables():
-        try:
-            # Connect to the PostgreSQL database
-            connection = psycopg2.connect(**db_credentials)
-            cursor = connection.cursor()
-
-            # Execute SQL query to list all tables
-            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
-            tables = cursor.fetchall()
-
-            # Print the list of tables
-            print("List of tables:")
-            for table in tables:
-                print(table[0])
-
-        except Exception as e:
-            print(f"Error: {e}")
-
-        finally:
-            # Close the cursor and connection
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
 
 
 @api_view(['GET'])
@@ -65,7 +31,6 @@ def apiOverview(request):
 def getUsers(request):
 	users = CustomUser.objects.all()
 	serializer = CustomUserSerializer(users, many=True)
-    list_tables()
 	return Response(serializer.data)
 
 
