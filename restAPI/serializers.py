@@ -33,4 +33,9 @@ class AnswersSerializer(serializers.ModelSerializer):
         fields = ['Answer','pub_date','updated_date','user_id','Q_id','like_count','dislike_count','A_id','user']
     extra_kwargs = {'pub_date': {'required': False},
 	'user_id': {'required': False}
-	}   
+	}
+    # def create(self, validated_data):
+        # Set default user type if not provided
+        # user_type = validated_data.get('userType', UserType.USER.value)
+        # validated_data['userType'] = user_type
+        # return super().create(validated_data)   

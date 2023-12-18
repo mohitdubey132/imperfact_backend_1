@@ -72,7 +72,8 @@ def custom_user_login(request):
 @api_view(['POST'])
 def user_create(request):
     serializer = CustomUserSerializer(data=request.data)
-
+    utype = request.data.get('userType')
+    print(utype)
     if serializer.is_valid():
         user = serializer.save()  # Save the user instance
         refresh = RefreshToken.for_user(user)
